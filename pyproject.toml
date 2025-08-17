@@ -1,6 +1,7 @@
 [project]
 name = "improvement-lab"
 version = "0.1.0"
+requires-python = ">=3.12"
 description = "Personal Code Lab"
 authors = [
     { name = "Felipe Martin Rodriguez", email = "felipemrz01@gmail.com" }
@@ -29,7 +30,10 @@ extend-select = [
     "UP",  # pyupgrade
     "D",  # pydocstyle
 ]
-ignore = ["D104"]
+ignore = ["D104", "D203", "D213"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
 
 [tool.ruff.format]
 quote-style = "double"
