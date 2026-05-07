@@ -14,12 +14,14 @@ class SentimentRequest(BaseModel):
 
     text: str = Field(..., min_length=6, max_length=100, example="I love this project!")
 
+
 class SentimentLabel(str, Enum):
     """Enumeration of sentiment labels returned by the analysis."""
 
     positive = "POSITIVE"
     negative = "NEGATIVE"
     neutral = "NEUTRAL"
+
 
 class SentimentResult(BaseModel):
     """Represents the sentiment analysis result for a single input text.
@@ -33,6 +35,7 @@ class SentimentResult(BaseModel):
     text: str
     label: SentimentLabel
     score: float
+
 
 class SentimentAnalysisResponse(BaseModel):
     """Response model for sentiment analysis requests.
