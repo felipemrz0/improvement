@@ -12,7 +12,7 @@ router = APIRouter(
     tags=["Sentiment Analysis"],
 )
 
-device:int = 0 if torch.cuda.is_available() else -1
+device: int = 0 if torch.cuda.is_available() else -1
 sentiment_pipeline: TextClassificationPipeline = pipeline("text-classification", device=device)
 
 
@@ -28,6 +28,7 @@ def _model_id_from_pipeline(p: TextClassificationPipeline) -> str:
         return model_id
     mdl = getattr(p, "model", None)
     return mdl.__class__.__name__ if mdl is not None else "unknown-model"
+
 
 @router.post("/", response_model=SentimentAnalysisResponse)
 def sentiment_analysis(request: SentimentRequest):
@@ -58,4 +59,3 @@ def sentiment_analysis(request: SentimentRequest):
             model=_model_id_from_pipeline(sentiment_pipeline))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
-
