@@ -1,9 +1,7 @@
 """Router for performing sentiment analysis."""
 from typing import Any
-
-import torch
-from fastapi import APIRouter, HTTPException
-from transformers.pipelines import TextClassificationPipeline, pipeline
+from fastapi import APIRouter, HTTPException, Request
+from transformers.pipelines import TextClassificationPipeline
 
 from app.models.sentiment import SentimentAnalysisResponse, SentimentRequest, SentimentResult
 
@@ -11,9 +9,6 @@ router = APIRouter(
     prefix="/sentiment-analysis",
     tags=["Sentiment Analysis"],
 )
-
-device: int = 0 if torch.cuda.is_available() else -1
-sentiment_pipeline: TextClassificationPipeline = pipeline("text-classification", device=device)
 
 
 def _model_id_from_pipeline(p: TextClassificationPipeline) -> str:
@@ -31,7 +26,7 @@ def _model_id_from_pipeline(p: TextClassificationPipeline) -> str:
 
 
 @router.post("/", response_model=SentimentAnalysisResponse)
-def sentiment_analysis(request: SentimentRequest):
+def sentiment_analysis(request: SentimentRequest, req: Request):
     """Analyze the sentiment of the given text.
 
     This endpoint uses a Hugging Face text-classification pipeline
@@ -40,6 +35,8 @@ def sentiment_analysis(request: SentimentRequest):
 
     Args:
         request (SentimentRequest): The input request containing the text to analyze.
+        req (Request): The incoming HTTP request, used to access the app state
+        and retrieve the sentiment pipeline loaded at startup.
 
     Returns:
         SentimentAnalysisResponse: The sentiment analysis results, including the
@@ -49,13 +46,14 @@ def sentiment_analysis(request: SentimentRequest):
         HTTPException: If the underlying model pipeline fails during inference.
 
     """
+    pipeline = req.app.state.sentiment_pipeline
     try:
-        result: list[dict[str, Any]] = sentiment_pipeline(request.text)
+        result: list[dict[str, Any]] = pipeline(request.text)
         return SentimentAnalysisResponse(
             results=[SentimentResult(
                 text=request.text, label=r["label"], score=r["score"])
                 for r in result
             ],
-            model=_model_id_from_pipeline(sentiment_pipeline))
+            model=_model_id_from_pipeline(pipeline))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e

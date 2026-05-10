@@ -1,16 +1,14 @@
 """Command-line interface (CLI) entry point for managing the application."""
 import typer
 
-from app.api import get_all_routers
-
 app = typer.Typer()
 
 
 @app.command()
 def start(port: int = typer.Option(8000, "--port", "-p", help="Port to listen on"),
-          host:str = typer.Option("0.0.0.0", "--host", "-h", help="Host to listen on"),
+          host: str = typer.Option("0.0.0.0", "--host", "-h", help="Host to listen on"),
           reload: bool | None = typer.Option(False, "--reload", "-r",
-                                                help="Reload the server on file changes")):
+                                             help="Reload the server on file changes")):
     """Start the FastAPI server.
 
     Starts the FastAPI server with the specified host, port, and reload option.
@@ -25,13 +23,9 @@ def start(port: int = typer.Option(8000, "--port", "-p", help="Port to listen on
 
     from app.main import app as fastapi_app
 
-    for router in get_all_routers():
-        fastapi_app.include_router(router)
-
     typer.echo(f"Starting FastAPI server on http://{host}:{port}")
     uvicorn.run(fastapi_app, host=host, port=port, reload=reload)
 
 
 if __name__ == "__main__":
     app()
-
