@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}Sentiment analysis · Improvement lab{% endblock %}
+
+{% block content %}
+<p class="section-label">sentiment analysis</p>
+
+<p class="input-label">text input</p>
+<textarea id="input" rows="4" placeholder="I love this project..." maxlength="100"></textarea>
+<button id="btn" onclick="analyze()">analyze →</button>
+
+<div class="result-card" id="result" style="display:none;">
+    <p class="result-label">result</p>
+    <span class="badge" id="badge"></span>
+    <div class="score-row">
+        <div class="score-bar-wrap">
+            <div class="score-bar" id="bar"></div>
+        </div>
+        <span class="score-val" id="score"></span>
+    </div>
+    <p class="model-tag" id="model"></p>
+</div>
+
+<script>
+async function analyze() {
+    const text = document.getElementById("input").value.trim();
+    if (!text) return;
+
+    const btn = document.getElementById("btn");
+    btn.disabled = true;
+    btn.textContent = "analyzing...";
+
+    try {
+        const res = await fetch("/sentiment-analysis/", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text })
+        });
+
+        const data = await res.json();
+        const result = data.results[0];
+        const score = result.score;
+        const label = result.label;
+
+        const badge = document.getElementById("badge");
+        badge.textContent = label;
+        badge.className = "badge " + (label === "POSITIVE" ? "badge-pos" : "badge-neg");
+
+        document.getElementById("bar").style.width = (score * 100).toFixed(1) + "%";
+        document.getElementById("score").textContent = score.toFixed(3);
+        document.getElementById("model").textContent = "model · " + data.model;
+        document.getElementById("result").style.display = "block";
+    } catch (e) {
+        alert("something went wrong");
+    } finally {
+        btn.disabled = false;
+        btn.textContent = "analyze →";
+    }
+}
+</script>
+{% endblock %}
