@@ -15,14 +15,14 @@
 ### Option 1: Using uv (recommended)
 
 ```bash
-git clone https://github.com/fmartin0/improvement.git
+git clone https://github.com/felipemrz0/improvement.git
 cd improvement
 uv sync
 ```
 ### Option 2: Using pip
 
 ```bash
-git clone https://github.com/fmartin0/improvement.git
+git clone https://github.com/felipemrz0/improvement.git
 cd improvement
 
 python -m venv .venv
